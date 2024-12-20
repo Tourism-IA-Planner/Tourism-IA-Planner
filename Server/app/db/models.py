@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, Float
 from sqlalchemy.orm import relationship
-from database import Base
+from app.db.database import Base
 
 
 class Plans(Base):
@@ -17,7 +17,8 @@ class Preferences(Base):
     id = Column(Integer, primary_key=True, index=True)
     lieuDepart = Column(String)  
     budget = Column(Float)
-    dateCreation = Column(Date)  
+    dateDepart = Column(Date) 
+    dateRetour = Column(Date)  
     idPlan = Column(Integer, ForeignKey("plans.id"), unique=True)  
     plan = relationship("Plans", back_populates="preference")
     userId = Column(Integer, ForeignKey("users.id"))  
@@ -58,7 +59,6 @@ class Activities(Base):
     adresse = Column(String) 
     idVille = Column(Integer, ForeignKey("villes.id"))  
     ville = relationship("Villes", back_populates="activities")
-    itineraries = relationship("Itineraires", secondary="itinerary_activity", back_populates="activities")
 
 
 class Itineraires(Base):
