@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from app.db.database import Base
+from sqlalchemy import PrimaryKeyConstraint
 
 
 class Plans(Base):
@@ -14,7 +15,7 @@ class Plans(Base):
 class Preferences(Base):
     __tablename__ = "preferences"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, autoincrement=True) 
     lieuDepart = Column(String)  
     budget = Column(Float)
     dateDepart = Column(Date) 
@@ -25,6 +26,9 @@ class Preferences(Base):
     user = relationship("User", back_populates="preferences")
     villes = relationship("LieuxToVisit", back_populates="preference")
 
+    __table_args__ = (
+        PrimaryKeyConstraint('id', 'lieuDepart'),
+    )
 
 class User(Base):
     __tablename__ = "users"
