@@ -5,6 +5,7 @@ from app.schemas.user import UserCreate, UserLogin
 from app.core.security import hash_password, verify_password, create_access_token, verify_token
 from app.db.database import get_db
 from datetime import timedelta
+from starlette import status
 
 
 
@@ -36,11 +37,11 @@ def signin(user: UserLogin, db: Session):
     # Check if the user exists
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user:
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid credentials")
 
     # Verify the password
     if not verify_password(user.password, db_user.password):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid credentials")
 
     # Create JWT token
     access_token = create_access_token(

@@ -20,10 +20,9 @@ app.include_router(user_router, prefix="/user", tags=["user"])
  #/user/signin
 #/user/signup
 
-
 # Autoriser l'origine spécifique de votre frontend
 origins = [
-    "http://localhost:5173",  # Ajoutez l'URL de votre frontend React
+    "http://localhost:5174",  # Ajoutez l'URL de votre frontend React
 ]
 
 app.add_middleware(
