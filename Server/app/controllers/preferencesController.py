@@ -81,7 +81,9 @@ def createPreference(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
+
     user_id = current_user.id
+ 
 
    
     newPlan = createPlansService(db=db,idUser=user_id)
