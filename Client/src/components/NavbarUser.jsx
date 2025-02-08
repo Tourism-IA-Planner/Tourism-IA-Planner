@@ -1,14 +1,26 @@
-import React, { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
-import { Link } from 'react-router-dom';
+import React, { useState, useContext } from "react";
+
+import { AuthContext } from '../contexts/AuthContext';
+
 
 const NavbarUser = () => {
   const [menuActive, setMenuActive] = useState(false);
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
 
   const toggleMenu = () => {
     setMenuActive(!menuActive);
   };
+
+  const handleLogout = async () => {
+    const success = await logout();
+    if (success) {
+      navigate('/'); // Redirection vers la page d'accueil après déconnexion
+    }
+  };
+
   return (
     <div className="navbar bg-base-200 shadow-md fixed z-40">
       <div className="navbar-start">
@@ -127,22 +139,24 @@ const NavbarUser = () => {
             </div>
           </div>
           <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-          >
-            <li>
-              <a href="/dashboard/profil" className="justify-between">
-                Profile
-                <span className="badge">New</span>
-              </a>
-            </li>
-            <li>
-              <a>Settings</a>
-            </li>
-            <li>
-              <a>Logout</a>
-            </li>
-          </ul>
+    tabIndex={0}
+    className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+  >
+    <li>
+      <a href="/dashboard/profil" className="justify-between">
+        Profile
+        <span className="badge">New</span>
+      </a>
+    </li>
+    <li>
+      <a>Settings</a>
+    </li>
+    <li>
+      <a onClick={handleLogout} className="cursor-pointer">
+        Logout
+      </a>
+    </li>
+  </ul>
         </div>
       </div>
     </div>

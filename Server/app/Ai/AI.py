@@ -7,10 +7,15 @@ import pandas as pd
 import requests
 from pydantic import BaseModel, Field
 
-# Load datasets
-tourism_data_file = r"C:\Users\DELL Pc\clones\ProjetBadir\Tourism-IA-Planner\Server\app\Ai\Comprehensive_Max_Tourism_Dataset.xlsx"
-transport_data_file = r"C:\Users\DELL Pc\clones\ProjetBadir\Tourism-IA-Planner\Server\app\Ai\Comprehensive_Max_Transport_Dataset.xlsx"
 
+import re
+import os
+
+# Get the current directory where AI.py is located
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Define the paths relative to the current directory
+tourism_data_file = os.path.join(current_dir, "Comprehensive_Max_Tourism_Dataset.xlsx")
+transport_data_file = os.path.join(current_dir, "Comprehensive_Max_Transport_Dataset.xlsx")
 tourism_df = pd.read_excel(tourism_data_file)
 transport_df = pd.read_excel(transport_data_file)
 
