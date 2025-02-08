@@ -5,7 +5,7 @@ import { ChatProvider, useChat } from '../contexts/ChatContext';
 const ChatInterface = ({ onClose }) => {
   const [message, setMessage] = useState("");
   const [isExpanded, setIsExpanded] = useState(true);
-  const { messages, sendMessage, loading, error, successMessage } = useChat();
+  const { messages, sendMessage, loading } = useChat();
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -53,7 +53,7 @@ const ChatInterface = ({ onClose }) => {
 
   return (
     <div className={`
-      fixed left-4 bottom-20 w-full max-w-md bg-white rounded-lg shadow-xl z-50 
+      fixed right-4 bottom-4 w-full max-w-md bg-white rounded-lg shadow-xl z-50 
       transition-all duration-300 ease-in-out
       ${isExpanded ? 'h-[600px] md:h-[500px]' : 'h-16'}
       overflow-hidden
@@ -96,6 +96,8 @@ const ChatInterface = ({ onClose }) => {
             </div>
           )}
 
+          
+          
           <div ref={messagesEndRef} />
         </div>
       )}
