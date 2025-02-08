@@ -267,7 +267,7 @@ async def get_favorites(
         if not favorites:
             raise HTTPException(status_code=404, detail="Aucun favori trouvé")
 
-        favorites_data = [{"plan_id": fav.plan_id, "favorite_data": fav.favorite_data} for fav in favorites]
+        favorites_data = [{"favorite_id": fav.id, "plan_id": fav.plan_id, "favorite_data": fav.favorite_data} for fav in favorites]
 
         return {"message": "Favoris récupérés avec succès", "data": favorites_data}
     
