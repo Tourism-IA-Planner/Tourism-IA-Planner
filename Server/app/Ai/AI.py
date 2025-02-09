@@ -3,6 +3,7 @@ import re
 from datetime import datetime, timedelta
 from typing import List, Optional
 
+import openai
 import pandas as pd
 import requests
 from pydantic import BaseModel, Field
@@ -19,7 +20,7 @@ transport_data_file = os.path.join(current_dir, "Comprehensive_Max_Transport_Dat
 tourism_df = pd.read_excel(tourism_data_file)
 transport_df = pd.read_excel(transport_data_file)
 
-OLLAMA_API_BASE = "http://localhost:11434/api"
+openai.api_key = "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"
 
 
 class PlanRequest(BaseModel):
@@ -59,19 +60,21 @@ def clean_activity_response(response: str) -> List[str]:
 
 
 def query_llama(prompt: str) -> str:
-    """Send a query to Llama 3 via Ollama API"""
-    url = f"{OLLAMA_API_BASE}/generate"
-    payload = {
-        "model": "llama3",
-        "prompt": prompt,
-        "stream": False
-    }
-
-    response = requests.post(url, json=payload)
-    if response.status_code == 200:
-        return response.json()['response']
-    else:
-        raise Exception(f"Error querying Llama: {response.text}")
+    """Send a query to OpenAI's API instead of Llama."""
+    try:
+        # Call OpenAI's API
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # Use the appropriate OpenAI model
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=500,  # Adjust as needed
+            temperature=0.7,  # Adjust for creativity
+        )
+        # Extract the response content
+        return response.choices[0].message['content']
+    except Exception as e:
+        raise Exception(f"Error querying OpenAI: {str(e)}")
 
 
 def generate_activity_prompt(city: str, num_activities: int) -> str:
