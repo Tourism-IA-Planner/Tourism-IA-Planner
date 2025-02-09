@@ -4,6 +4,7 @@ from pydantic import BaseModel, root_validator, Field
 from datetime import datetime
 from typing import Optional, List
 
+
 from app.db.database import get_db
 from app.controllers.auth_controller import get_current_user
 from app.services.PlansService import createPlansService
@@ -80,10 +81,12 @@ def createPreference(
         preference: PreferencesCreate,
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
+
 ):
 
     user_id = current_user.id
  
+
 
    
     newPlan = createPlansService(db=db,idUser=user_id)
