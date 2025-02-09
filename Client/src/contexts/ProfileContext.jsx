@@ -1,4 +1,3 @@
-// ProfileContext.jsx
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import { AuthContext } from './AuthContext';
@@ -40,7 +39,7 @@ export const ProfileProvider = ({ children }) => {
       });
       return URL.createObjectURL(response.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch profile image');
+      // Si l'image n'existe pas, on retourne simplement null sans erreur
       return null;
     }
   }, [token]);
@@ -95,7 +94,7 @@ export const ProfileProvider = ({ children }) => {
       setTimeout(() => setSuccessMessage(null), 3000);
       return true;
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update profile');
+      setError(err.response?.data?.detail?.message || 'Failed to update profile');
       return false;
     } finally {
       setLoading(false);
@@ -124,7 +123,7 @@ export const ProfileProvider = ({ children }) => {
       setTimeout(() => setSuccessMessage(null), 3000);
       return true;
     } catch (err) {
-      setError(err.response?.data?.message || 'Password update failed');
+      setError(err.response?.data?.detail?.message || 'Password update failed');
       return false;
     } finally {
       setLoading(false);

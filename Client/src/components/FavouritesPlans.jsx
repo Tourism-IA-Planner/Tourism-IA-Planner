@@ -1,165 +1,192 @@
-import React, { useState } from "react";
-import { FaHeart, FaTrash } from "react-icons/fa";
-import { BsArrowRight } from "react-icons/bs";
-import { motion } from "framer-motion";
-import "react-circular-progressbar/dist/styles.css";
+import React, { useState, useEffect } from "react";
+import { MapPin, Wallet, Calendar, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import { usePreferences } from "../contexts/PreferencesContext";
+import { TOURISM_IMAGES } from "../assets/tourismImages";
 
 const FavouritesPlans = () => {
+  const { favorites } = usePreferences();
   const navigate = useNavigate();
-  const [favoritePlans, setFavoritePlans] = useState([
-    {
-      id: 1,
-      name: "Paradise Beach Getaway",
-      image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21",
-      dates: "Aug 15 - Aug 25, 2024",
-      budget: "$2,500",
-      location: "Maldives"
-    },
-    {
-      id: 2,
-      name: "Mountain Adventure",
-      image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b",
-      dates: "Sep 10 - Sep 20, 2024",
-      budget: "$3,200",
-      location: "Swiss Alps"
-    },
-    {
-      id: 3,
-      name: "Cultural City Tour",
-      image: "https://images.unsplash.com/photo-1522083165195-3424ed129620",
-      dates: "Oct 5 - Oct 15, 2024",
-      budget: "$4,000",
-      location: "Paris"
-    }
-  ]);
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [cachedImages, setCachedImages] = useState(() => {
+    const saved = sessionStorage.getItem("favoriteImages");
+    return saved ? JSON.parse(saved) : {};
+  });
 
-  const removePlan = (id) => {
-    setFavoritePlans(favoritePlans.filter((plan) => plan.id !== id));
+  useEffect(() => {
+    if (!Array.isArray(favorites)) return;
+    
+    const newImages = {};
+    favorites.forEach((_, index) => {
+      newImages[index] = TOURISM_IMAGES[Math.floor(Math.random() * TOURISM_IMAGES.length)];
+    });
+    setCachedImages(newImages);
+    sessionStorage.setItem("favoriteImages", JSON.stringify(newImages));
+  }, [favorites]);
+
+  const formatCurrency = (amount) => {
+    if (typeof amount !== 'number') return '0 MAD';
+    return new Intl.NumberFormat("fr-MA", {
+      style: "currency",
+      currency: "MAD",
+      minimumFractionDigits: 0,
+    }).format(Math.round(amount));
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
+  const renderCityDays = (plan) => {
+    if (!plan?.plan || !Array.isArray(plan.plan)) return null;
+    
+    return plan.plan.map((city, index) => (
+      <div 
+        key={index} 
+        className="flex justify-between items-center mb-2 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-300"
+      >
+        <span className="text-gray-600 font-medium">{city?.city || 'Unknown city'}</span>
+        <span className="flex items-center text-gray-700">
+          <Calendar className="mr-1 w-4 h-4 text-teal-500" />
+          {Math.round(city?.days_spent || 0)} day{Math.round(city?.days_spent || 0) > 1 ? "s" : ""}
+        </span>
+      </div>
+    ));
+  };
+
+  const renderFavoriteCard = (favorite, index) => {
+    if (!favorite?.favorite_data) return null;
+
+    const {
+      total_cost = 0,
+      total_days_spent = 0,
+      breakdown = {
+        hotels_total: 0,
+        activities_total: 0,
+        transport_total: 0
       }
-    }
+    } = favorite.favorite_data;
+
+    return (
+      <div
+        key={index}
+        className={`group bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl ${
+          selectedCard === index ? 'scale-105' : 'hover:scale-102'
+        }`}
+        onMouseEnter={() => setSelectedCard(index)}
+        onMouseLeave={() => setSelectedCard(null)}
+      >
+        <div className="relative h-48 overflow-hidden">
+          <img
+            src={cachedImages[index] || TOURISM_IMAGES[index % TOURISM_IMAGES.length]}
+            alt="Travel"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = TOURISM_IMAGES[index % TOURISM_IMAGES.length];
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute top-2 right-2">
+            <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
+          </div>
+        </div>
+
+        <div className="p-6 space-y-4">
+          <h3 className="text-xl font-bold flex items-center text-gray-800">
+            <MapPin className="mr-2 w-5 h-5 text-teal-500" />
+            Favorite Plan {index + 1}
+          </h3>
+
+          <p className="flex items-center text-gray-700 font-medium">
+            <Wallet className="mr-2 w-5 h-5 text-teal-500" />
+            {formatCurrency(total_cost)}
+          </p>
+
+          <div className="space-y-2">
+            <div className="flex justify-between items-center mb-4">
+              <h4 className="font-semibold flex items-center text-gray-800">
+                <Calendar className="mr-2 w-5 h-5 text-teal-500" />
+                Total Duration:
+              </h4>
+              <span className="text-gray-700">
+                {Math.round(total_days_spent)} days
+              </span>
+            </div>
+            
+            <h4 className="font-semibold text-gray-800 mb-2">
+              Details by City:
+            </h4>
+            <div className="space-y-1">
+              {renderCityDays(favorite.favorite_data)}
+            </div>
+          </div>
+
+          <div className="space-y-2 pt-4">
+            <h4 className="font-semibold text-gray-800 mb-2">Budget Breakdown:</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="flex justify-between">
+                <span>Hotels:</span>
+                <span>{formatCurrency(breakdown.hotels_total)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Activities:</span>
+                <span>{formatCurrency(breakdown.activities_total)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Transport:</span>
+                <span>{formatCurrency(breakdown.transport_total)}</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate(`/dashboard/FavouritesPlan?planIndex=${index}&isFavorite=true`)}
+            className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-teal-400 to-teal-500 text-white font-medium 
+            transition-all duration-300 hover:shadow-lg hover:from-teal-500 hover:to-teal-600 
+            focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transform hover:-translate-y-0.5"
+          >
+            View Details
+          </button>
+        </div>
+      </div>
+    );
   };
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1
-    }
-  };
+  if (!Array.isArray(favorites)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold text-gray-800 py-16">Loading...</h1>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="pt-16">
-        <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8"
-    >
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <motion.div 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-4xl font-bold text-gray-900 mb-4 text-start">
-            Your Favorite <span className="text-[#8DD3BB]">Travel</span> Plans
-          </h1>
-          <p className="text-lg text-gray-600 text-start">
-            Manage and explore your dream destinations
-          </p>
-        </motion.div>
+        <h1 className="text-4xl font-bold text-gray-800 py-16 transition-all duration-500 hover:scale-105">
+          Your Favorite{" "}
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-teal-600">
+            Plans
+          </span>
+        </h1>
 
-        {favoritePlans.length === 0 ? (
-          <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-center py-16 bg-white rounded-lg shadow-md"
-          >
-            <FaHeart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-2xl font-semibold text-gray-600 mb-2">
-              No Favorites Yet
-            </h2>
-            <p className="text-gray-500">
-              Start adding your dream destinations to favorites!
-            </p>
-          </motion.div>
+        {favorites.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {favorites.map((favorite, index) => renderFavoriteCard(favorite, index))}
+          </div>
         ) : (
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {favoritePlans.map((plan) => (
-              <motion.div
-                key={plan.id}
-                variants={itemVariants}
-                whileHover={{ scale: 1.03 }}
-                className="bg-white rounded-xl shadow-lg overflow-hidden"
-              >
-                <div className="relative">
-                  <img
-                    src={plan.image}
-                    alt={plan.name}
-                    className="w-full h-48 object-cover"
-                    onError={(e) => {
-                      e.target.src = "https://images.unsplash.com/photo-1436491865332-7a61a109cc05";
-                    }}
-                  />
-                  <motion.button
-                    onClick={() => removePlan(plan.id)}
-                    whileHover={{ scale: 1.1, backgroundColor: "#EF4444" }}
-                    whileTap={{ scale: 0.95 }}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-white shadow-md hover:text-white transition-colors duration-300"
-                  >
-                    <FaTrash className="w-4 h-4" />
-                  </motion.button>
-                </div>
-
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {plan.name}
-                  </h3>
-                  <div className="space-y-2 mb-4">
-                    <p className="text-gray-600">
-                      <span className="font-medium">Location:</span>{" "}
-                      {plan.location}
-                    </p>
-                    <p className="text-gray-600">
-                      <span className="font-medium">Dates:</span> {plan.dates}
-                    </p>
-                    <p className="text-gray-600">
-                      <span className="font-medium">Budget:</span> {plan.budget}
-                    </p>
-                  </div>
-
-                  <motion.button onClick={() => navigate("/dashboard/plan")}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full bg-[#8DD3BB] text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center justify-center space-x-2"
-                  >
-                    <button >View Details</button>
-                    <BsArrowRight className="w-4 h-4" />
-                  </motion.button>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+          <div className="text-center p-12 bg-white rounded-xl shadow-lg">
+            <p className="text-gray-500 text-lg">
+              You don't have any favorite plans yet
+            </p>
+            <button
+              onClick={() => navigate('/dashboard/plans')}
+              className="mt-4 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors duration-300"
+            >
+              Discover Plans
+            </button>
+          </div>
         )}
       </div>
-    </motion.div>
     </div>
   );
 };

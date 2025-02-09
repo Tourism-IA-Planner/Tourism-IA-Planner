@@ -18,7 +18,8 @@ import Plans from "./components/Plans";
 import Profil from "./components/Profil";
 import Plan from "./components/Plan";
 import FavouritesPlans from "./components/FavouritesPlans";
-
+import FavouritesPlan from './components/FavouritesPlan';
+import { ToastContainer } from 'react-toastify';
 // Import des contextes pour la gestion d'état globale
 
 
@@ -48,9 +49,21 @@ const App = () => {
                 <Route path="plan" element={<Plan />} />
                 <Route path="profil" element={<Profil />} />
                 <Route path="FavouritesPlans" element={<FavouritesPlans />} />
+                <Route path="FavouritesPlan" element={<FavouritesPlan />} />
               </Route>
             </Routes>
           </Router>
+          <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
         </PreferencesProvider>
       </ProfileProvider> {/* Close ProfileProvider here */}
     </AuthProvider>

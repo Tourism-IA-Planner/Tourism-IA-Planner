@@ -83,7 +83,9 @@ def createPreference(
         current_user: User = Depends(get_current_user)
 
 ):
+
     user_id = current_user.id
+ 
 
 
    

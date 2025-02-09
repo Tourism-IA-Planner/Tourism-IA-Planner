@@ -2,6 +2,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 from datetime import datetime
+from app.db.models import User,Plans
+from sqlalchemy.exc import SQLAlchemyError
+
 
 def createPlansService(db: Session, idUser: int):
     try:

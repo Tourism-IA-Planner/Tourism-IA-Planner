@@ -1,58 +1,38 @@
 import React, { useState, useContext, useEffect } from "react";
-import { MapPin, Hotel, List, Plane, Clock, Star, Heart, MessageSquare } from "lucide-react";
+import { MapPin, Hotel, List, Plane, Clock, Star } from "lucide-react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { PreferencesContext } from '../contexts/PreferencesContext';
 import { useSearchParams } from "react-router-dom";
 
-const Plan = () => {
-  const { preferences, generatedPlans, addToFavorites, favorites = [], setFavorites } = useContext(PreferencesContext);
-  const [searchParams, setSearchParams] = useSearchParams();
+const FavouritesPlan = () => {
+  const { favorites } = useContext(PreferencesContext);
+  const [searchParams] = useSearchParams();
   const [selectedPlanIndex, setSelectedPlanIndex] = useState(0);
-  const [isFavoriting, setIsFavoriting] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
 
   const MAD_RATE = 1;
 
   useEffect(() => {
     const urlIndex = parseInt(searchParams.get('planIndex')) || 0;
-    setSelectedPlanIndex(Math.min(urlIndex, (generatedPlans?.length || 1) - 1));
-  }, [generatedPlans, searchParams]);
+    setSelectedPlanIndex(Math.min(urlIndex, (favorites?.length || 1) - 1));
+  }, [favorites, searchParams]);
 
-  useEffect(() => {
-    setSearchParams({ planIndex: selectedPlanIndex }, { replace: true });
-  }, [selectedPlanIndex, setSearchParams]);
-
-  const handleAddToFavorites = async () => {
-    if (isFavoriting) return;
-
-    setIsFavoriting(true);
-    try {
-      await addToFavorites(selectedPlanIndex);
-    } catch (error) {
-      console.error("Error adding to favorites", error);
-    } finally {
-      setIsFavoriting(false);
-    }
-  };
-
-  if (!generatedPlans || generatedPlans.length === 0) {
+  if (!favorites || favorites.length === 0) {
     return (
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="flex h-screen items-center justify-center"
       >
-        <p className="text-gray-600 text-lg animate-pulse">No travel plans generated yet. Please set your preferences first.</p>
+        <p className="text-gray-600 text-lg animate-pulse">Aucun plan favori trouvé.</p>
       </motion.div>
     );
   }
 
-  const currentPlan = generatedPlans[selectedPlanIndex];
-  const currentPreference = preferences[preferences.length - 1];
+  const currentPlan = favorites[selectedPlanIndex].favorite_data;
   const breakdown = currentPlan.breakdown;
-  const budgetScore = Math.round((currentPlan.total_cost / currentPreference.budget) * 100);
   const planItems = currentPlan.plan;
 
   const fadeInUpVariants = {
@@ -80,7 +60,7 @@ const Plan = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {generatedPlans.map((_, index) => (
+            {favorites.map((_, index) => (
               <motion.button
                 key={index}
                 onClick={() => setSelectedPlanIndex(index)}
@@ -93,7 +73,7 @@ const Plan = () => {
                 }`}
               >
                 <Star className={`w-5 h-5 ${selectedPlanIndex === index ? "text-white" : "text-teal-500"}`} />
-                <span>Plan {index + 1}</span>
+                <span>Plan Favori {index + 1}</span>
               </motion.button>
             ))}
           </motion.div>
@@ -220,62 +200,22 @@ const Plan = () => {
               </div>
               <div className="mt-4 md:mt-0 w-32">
                 <CircularProgressbar
-                  value={budgetScore}
-                  text={`${budgetScore}%`}
+                  value={currentPlan.total_days_spent * 20}
+                  text={`${currentPlan.total_days_spent} jours`}
                   styles={buildStyles({
-                    pathColor: `rgba(141, 211, 187, ${budgetScore / 100})`,
+                    pathColor: '#2dd4bf',
                     textColor: '#2dd4bf',
                     trailColor: '#d6d6d6'
                   })}
                 />
-                <p className="text-center mt-2 text-sm">Budget Usage</p>
+                <p className="text-center mt-2 text-sm">Durée du voyage</p>
               </div>
             </div>
           </motion.div>
-        </motion.div>
-
-        <motion.div 
-          className="mt-8 flex justify-center space-x-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <motion.button
-            onClick={handleAddToFavorites}
-            disabled={isFavoriting || favorites.some(f => f.idPlan === selectedPlanIndex)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-lg shadow-md transition-all duration-300 ${
-              favorites.some(f => f.idPlan === selectedPlanIndex)
-                ? "bg-gray-300 cursor-not-allowed"
-                : isFavoriting
-                ? "bg-gray-200 cursor-wait"
-                : "bg-white text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            <Heart className={`w-5 h-5 ${
-              favorites.some(f => f.idPlan === selectedPlanIndex) ? "text-red-500" : ""
-            }`} />
-            <span>
-              {favorites.some(f => f.idPlan === selectedPlanIndex)
-                ? "Ajouté aux favoris"
-                : isFavoriting
-                ? "Ajout en cours..."
-                : "Ajouter aux favoris"}
-            </span>
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center space-x-2 px-6 py-3 rounded-lg bg-white text-gray-600 hover:bg-gray-50 shadow-md transition-all duration-300"
-          >
-            <MessageSquare className="w-5 h-5" />
-            <span>Give Your Feedback</span>
-          </motion.button>
         </motion.div>
       </motion.div>
     </div>
   );
 };
 
-export default Plan;
+export default FavouritesPlan;

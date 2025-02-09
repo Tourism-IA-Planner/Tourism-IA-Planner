@@ -1,12 +1,25 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException , status
+
 from app.routes.auth_routes import router as user_router
-from app.routes.auth_routes import router as auth_router
-from app.routes.auth_routes import router as auth_router
+# from app.routes.auth_routes import router as auth_router
+# from app.routes.auth_routes import router as auth_router
 from app.db.database import engine, Base, SessionLocal
 from app.db.models import Villes
 from app.Ai.router import plans_router
 from app.controllers.trip_controller import router as trip_router
 from app.services.trip_planner import TripPlannerService
+from app.controllers.google_auth_controller import router as google_auth_router
+from app.controllers.logout_controller import router as logout_router
+from app.core.token_management import token_manager
+from app.core.exception_handlers import (
+    http_exception_handler,
+    validation_exception_handler,
+    generic_exception_handler
+)
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from starlette.status import HTTP_401_UNAUTHORIZED
+
 
 # Create tables in the database
 Base.metadata.create_all(bind=engine)
@@ -18,16 +31,69 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 from app.controllers.user_controller import router as user_profile_router
 
-logging.basicConfig()
+logging.basicConfig(level=logging.INFO)
 logging.getLogger('sqlalchemy').setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 app = FastAPI()
 
+#  exception handlers
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
+
+
+@app.middleware("http")
+async def validate_token(request: Request, call_next):
+    """Middleware to check if a token has been invalidated"""
+    try:
+        # Skip token validation for non-protected routes
+        if request.url.path in [
+            "/user/signin",
+            "/user/signup",
+            "/auth/google",
+            "/docs",
+            "/openapi.json",
+            "/redoc"
+        ]:
+            return await call_next(request)
+
+        auth_header = request.headers.get('Authorization')
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+
+            # Check if token is invalidated
+            if token_manager.is_token_invalid(token):
+                return JSONResponse(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    content={
+                        "detail": {
+                            "message": "Token has been invalidated. Please login again.",
+                            "code": "INVALID_TOKEN"
+                        }
+                    }
+                )
+
+        response = await call_next(request)
+        return response
+
+    except Exception as e:
+        logger.error(f"Error in token validation middleware: {str(e)}")
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={
+                "detail": {
+                    "message": "Authentication failed",
+                    "code": "AUTH_ERROR",
+                    "error": str(e)
+                }
+            }
+        )
 # Include user-related routes
 app.include_router(trip_router)
-app.include_router(user_router, prefix="/user", tags=["user"])
-app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(user_router, prefix="/user", tags=["Authentication moad"])
+# app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
  #/user/signin
 #/user/signup
 #get userById
@@ -61,7 +127,7 @@ def startup_event():
             initial_cities = [
                 Villes(nom="Marrakech", budget=1000),
                 Villes(nom="Casablanca", budget=2000),
-                Villes(nom="Fès", budget=1500),
+                Villes(nom="Fes", budget=1500),
                 Villes(nom="Tangier", budget=1200),
                 Villes(nom="Agadir", budget=1300),
                 Villes(nom="Rabat", budget=2500),
@@ -85,9 +151,10 @@ def startup_event():
 
 
 
-
 app.include_router(preferences_router)
 app.include_router(villes_router)
 app.include_router(chatbot_router, prefix="/api/chat", tags=["chat"])
 
 app.include_router(user_profile_router, prefix="/user", tags=["user"])
+app.include_router(google_auth_router, tags=["Authentication moad"])
+app.include_router(logout_router, prefix="/user", tags=["Authentication moad"])
