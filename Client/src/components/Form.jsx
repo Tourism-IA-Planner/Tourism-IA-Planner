@@ -83,40 +83,45 @@ const TravelPlanForm = () => {
 
     // Validation des dates
     const departure = new Date(departureDate);
-    const return_date = new Date(returnDate);
+  const return_date = new Date(returnDate);
 
-    if (return_date <= departure) {
-      showError("Return date must be after departure date");
-      return;
-    }
+  if (return_date <= departure) {
+    showError("Return date must be after departure date");
+    return;
+  }
 
-    // Calcul de la différence en jours
-    const tripDuration = Math.ceil((return_date - departure) / (1000 * 60 * 60 * 24));
-    if (tripDuration > 90) {
-      showError("Trip duration cannot exceed 90 days");
-      return;
-    }
+  const tripDuration = Math.ceil((return_date - departure) / (1000 * 60 * 60 * 24));
+  
+  if (tripDuration > 90) {
+    showError("Trip duration cannot exceed 90 days");
+    return;
+  }
 
-    const preferenceData = {
-      lieuDepart: departureCity,
-      cities: citiesToVisit,
-      dateDepart: departureDate,
-      dateRetour: returnDate,
-      budget: parseFloat(budget)
-    };
+  if (citiesToVisit.length > tripDuration) {
+    showError(`Number of cities (${citiesToVisit.length}) cannot exceed the trip duration (${tripDuration} days)`);
+    return;
+  }
 
-    setIsLoading(true);
-    try {
-      const response = await handleCreatePreference(preferenceData);
-      Swal.fire({
-        title: 'Success!',
-        text: 'Your travel plan has been created',
-        icon: 'success',
-        confirmButtonText: 'Great!',
-        customClass: {
-          popup: 'animate__animated animate__bounceIn'
-        }
-      });
+  const preferenceData = {
+    lieuDepart: departureCity,
+    cities: citiesToVisit,
+    dateDepart: departureDate,
+    dateRetour: returnDate,
+    budget: parseFloat(budget)
+  };
+
+  setIsLoading(true);
+  try {
+    const response = await handleCreatePreference(preferenceData);
+    Swal.fire({
+      title: 'Success!',
+      text: 'Your travel plan has been created',
+      icon: 'success',
+      confirmButtonText: 'Great!',
+      customClass: {
+        popup: 'animate__animated animate__bounceIn'
+      }
+    });
       
       // Reset form and navigate
       setDepartureCity('');
