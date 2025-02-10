@@ -367,7 +367,7 @@ def generate_plans(plan_request: PlanRequest):
         # Add budget validation
         if total_cost > plan_request.budget:
             raise ValueError(
-                f"Not enough budget. The estimated cost ({total_cost} MAD) "
+                f"Not enough budget.  "
                 f"exceeds your budget of {plan_request.budget} MAD. "
                 "Please increase your budget or reduce the number of cities."
             )
