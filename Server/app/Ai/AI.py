@@ -124,20 +124,23 @@ def adjust_activities_to_budget(activities: List[dict], remaining_budget: float)
 
 
 def adjust_hotel_to_budget(city: str, budget: float) -> dict:
-    """Adjust hotel selection based on the budget."""
+    """Select a random low-budget hotel from the top 5 cheapest options."""
     hotel_df = tourism_df[(tourism_df['Ville'] == city) & (tourism_df['Type de donnée'] == 'Hôtel')]
+
     if not hotel_df.empty:
-        # Sort hotels by cost
         sorted_hotels = hotel_df.sort_values(by='Coût (MAD)')
-        if budget < 1000:  # Low budget
-            hotel = sorted_hotels.iloc[0].to_dict()
-        elif budget > 5000:  # High budget
-            hotel = sorted_hotels.iloc[-1].to_dict()
-        else:  # Medium budget
-            hotel = sorted_hotels.iloc[len(sorted_hotels) // 2].to_dict()
-        return hotel
-    else:
-        return {"Nom de l'élément": 'Standard Hotel', "Coût (MAD)": random.uniform(80, 120)}
+
+        # Always select from the top 5 cheapest hotels (or as many as available)
+        num_hotels = min(5, len(sorted_hotels))
+        if num_hotels > 0:
+            selected_index = random.randint(0, num_hotels - 1)
+            return sorted_hotels.iloc[selected_index].to_dict()
+
+    # Fallback if no hotels found
+    return {
+        "Nom de l'élément": 'Standard Hotel',
+        "Coût (MAD)": random.uniform(80, 120)
+    }
 
 def adjust_transport_to_budget(departure_city: str, arrival_city: str, budget: float) -> float:
     """Adjust transport cost based on the budget."""
