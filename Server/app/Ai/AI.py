@@ -358,8 +358,16 @@ def generate_plans(plan_request: PlanRequest):
         hotels_total = sum(city['hotel']['totalPrice'] for city in itinerary)
         activities_total = sum(city['total_activities_cost'] for city in itinerary)
 
-        # Ensure total_cost matches the sum of hotels_total, activities_total, and transport_total
+        # Recalculate total cost to ensure accuracy
         total_cost = hotels_total + activities_total + int(transport_total)
+
+        # Add budget validation
+        if total_cost > plan_request.budget:
+            raise ValueError(
+                f"Not enough budget. The estimated cost ({total_cost} MAD) "
+                f"exceeds your budget of {plan_request.budget} MAD. "
+                "Please increase your budget or reduce the number of cities."
+            )
 
         all_plans.append({
             "plan": itinerary,
