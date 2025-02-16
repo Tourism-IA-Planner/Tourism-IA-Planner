@@ -190,7 +190,7 @@ export const PreferencesProvider = ({ children }) => {
 
       if (response.data.message === "Favorite ajouté avec succès") {
         setFavorites((prev) => [...prev, response.data.data]);
-        toast.success("Plan ajouté aux favoris avec succès!");
+        toast.success("Plan successfully added to favorites!");
         return true;
       }
       return false;
@@ -238,7 +238,7 @@ export const PreferencesProvider = ({ children }) => {
           JSON.stringify(updatedFavorites)
         );
 
-        toast.success("Plan supprimé des favoris avec succès!");
+        toast.success("Plan successfully removed from favorites!");
         return true;
       }
       return false;
