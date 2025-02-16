@@ -186,7 +186,21 @@ const TravelPlanForm = () => {
             className="text-3xl font-bold text-start text-gray-800 mb-8"
             variants={itemVariants}
           >
-            Let's Make a <span className="text-[#8DD3BB] hover:text-[#6bab93] transition-colors duration-300">Plan</span> For You:
+<div className="flex flex-col items-center justify-center text-center gap-2">
+  <h1 className="text-3xl md:text-4xl font-bold mb-2">
+    Let's Build Your  
+    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8DD3BB] to-[#6bab93] hover:bg-gradient-to-l transition-all duration-500 mx-2">
+      Perfect
+    </span>
+    <span className="text-[#8DD3BB] hover:text-[#6bab93] transition-colors duration-300 font-bold text-4xl md:text-4xl relative group">
+      Plan    
+      <span className="absolute -right-4 -top-2 transform rotate-12 text-2xl">✨</span>
+    </span> 
+  </h1>
+  <p className="text-sm text-gray-500 italic animate-pulse">
+    🤖 AI-powered and constantly improving • 💰 Estimated pricing included
+  </p>
+</div>
           </motion.h2>
           
           <form onSubmit={handleSubmit} className="space-y-6">
