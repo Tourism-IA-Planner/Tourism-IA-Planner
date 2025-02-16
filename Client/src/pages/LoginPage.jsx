@@ -1,97 +1,153 @@
-import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import GoogleAuthButton from '../components/GoogleAuthButton';
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, isLoading, error: authError } = useContext(AuthContext);
+  const { login, isLoading, error: authError, isAuthenticated } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard/form");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-
-    const result = await login({ email, password });
-    if (result) {
-      navigate("/dashboard/form");
-    } else {
-      setError("Invalid credentials");
+    
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+    
+    try {
+      const result = await login({ email, password });
+      if (result) {
+        navigate("/dashboard/form");
+      }
+    } catch (err) {
+      setError("Login failed. Please try again.");
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
-    <section className="bg-white-100 min-h-screen flex box-border justify-center items-center">
-      <div className="bg-[#ffffff] rounded-2xl flex max-w-3xl p-5 items-center">
+    <section className="bg-gray-50 min-h-screen flex justify-center items-center px-4 py-6">
+      <div className="bg-white rounded-2xl shadow-lg flex flex-col md:flex-row max-w-3xl w-full overflow-hidden">
         {/* Left Side */}
-        <div className="md:w-1/2 px-8">
-          <h2 className="font-bold text-3xl text-[#000000]">Login</h2>
-          <p className="text-sm mt-4 text-[#112211]">
-            If you already a member, easily log in now.
+        <div className="md:w-1/2 p-6 md:p-8 lg:p-10">
+          <h2 className="font-bold text-2xl md:text-3xl text-gray-800">Welcome Back</h2>
+          <p className="text-sm mt-2 text-gray-600">
+            If you're already a member, easily log in now.
           </p>
+          
           {(error || authError) && (
-            <p className="text-red-500 mt-2">{error || authError}</p>
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4" role="alert">
+              <span className="block sm:inline">{error || authError}</span>
+            </div>
           )}
           
-          <form onSubmit={handleLogin} className="flex flex-col gap-4">
-            <input
-              className="p-2 mt-6 rounded border"
-              type="email"
-              placeholder="Write your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <div className="relative">
+          <form onSubmit={handleLogin} className="flex flex-col gap-4 mt-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
               <input
-                className="p-2 rounded border w-full"
-                type="password"
-                placeholder="Write your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                id="email"
+                className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#8DD3BB] focus:border-[#8DD3BB] outline-none transition-all"
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
+            
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <div className="relative">
+                <input
+                  id="password"
+                  className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#8DD3BB] focus:border-[#8DD3BB] outline-none transition-all"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? (
+                    <EyeOffIcon className="h-5 w-5" />
+                  ) : (
+                    <EyeIcon className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+            
+           
 
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-[#8DD3BB] text-black py-2 rounded hover:scale-105 duration-300 hover:bg-[#14183E] hover:text-[#ffffff] font-medium"
+              className="bg-[#8DD3BB] text-black font-medium py-3 rounded-lg hover:bg-[#14183E] hover:text-white transition-all duration-300 flex justify-center items-center"
             >
-              {isLoading ? "Loading..." : "Login"}
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Loading...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </button>
           </form>
 
-          <div className="mt-6 items-center text-gray-100">
-            <hr className="border-gray-300" />
-            <p className="text-center text-sm text-black font-semibold">OR</p>
-            <hr className="border-gray-300" />
+          <div className="my-6 flex items-center">
+            <hr className="flex-grow border-t border-gray-300" />
+            <span className="px-3 text-sm text-gray-500 font-medium">OR</span>
+            <hr className="flex-grow border-t border-gray-300" />
           </div>
 
           <div className="mt-4">
             <GoogleAuthButton />
           </div>
 
-          <div className="mt-4 text-sm flex items-center">
-            <p className="pl-12 md:mr-0">Don't have an account?</p>
+          <div className="mt-6 text-center text-sm">
+            <span className="text-gray-600">Don't have an account?</span>{" "}
             <button
-              className="register py-2 px-0.5 font-semibold text-[#8DD3BB] font-bold"
+              className="font-semibold text-[#8DD3BB] hover:text-[#14183E] transition-colors"
               onClick={() => navigate("/signup")}
             >
-              Register
+              Create Account
             </button>
           </div>
         </div>
 
-        {/* Right Side */}
-        <div className="md:block hidden w-1/2">
+        {/* Right Side - Image */}
+        <div className="hidden md:block md:w-1/2 relative">
           <img
-            className="rounded-2xl max-h-[1200px] w-[900rem] max-w-full"
+            className="absolute inset-0 h-full w-full object-cover"
             src="https://images.unsplash.com/photo-1538600838042-6a0c694ffab5?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="login form"
+            alt="Login background"
           />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#14183E]/30 to-transparent"></div>
         </div>
       </div>
     </section>

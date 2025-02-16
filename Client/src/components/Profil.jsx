@@ -231,7 +231,7 @@ const Profil = () => {
 
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700">First Name</label>
+              <label className="block text-sm font-medium text-gray-700">Last Name</label>
               <motion.input
                 whileFocus={{ scale: 1.01 }}
                 type="text"
@@ -253,7 +253,7 @@ const Profil = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Last Name</label>
+              <label className="block text-sm font-medium text-gray-700">First Name</label>
               <motion.input
                 whileFocus={{ scale: 1.01 }}
                 type="text"

@@ -92,111 +92,159 @@ const SignupPage = () => {
     }
   };
 
+  const renderErrors = () => {
+    if (!authError && Object.keys(formErrors).length === 0) return null;
+    
+    return (
+      <div
+        className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md mb-4"
+        role="alert"
+      >
+        {authError && <p className="font-bold">{authError}</p>}
+        {Object.entries(formErrors).map(
+          ([field, error], index) => error && <p key={index} className="text-sm">• {error}</p>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <section className="bg-white-100 min-h-screen flex justify-center items-center">
-      <div className="bg-[#ffffff] rounded-2xl flex max-w-3xl p-5 items-center">
-        <div className="md:w-1/2 px-8">
-          <h2 className="font-bold text-3xl text-[#000000]">Register</h2>
-          <p className="text-sm mt-4 text-[#112211]">
-            Discover your second country, {" "}
+    <section className="bg-[#F9F9F9] min-h-screen flex justify-center items-center p-4">
+      <div className="bg-white rounded-2xl shadow-lg flex flex-col md:flex-row max-w-3xl w-full overflow-hidden">
+        {/* Form Column */}
+        <div className="md:w-1/2 w-full px-6 py-8 md:px-8">
+          <h2 className="font-bold text-2xl md:text-3xl text-[#112211]">Register</h2>
+          <p className="text-sm mt-2 text-[#112211]">
+            Discover your second country,{" "}
             <span className="text-red-500 font-bold">MORO</span>
             <span className="text-green-600 font-bold">CCO.</span>
           </p>
 
-          {/* Error display */}
-          {(authError || Object.keys(formErrors).length > 0) && (
-            <div
-              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-              role="alert"
-            >
-              {authError && <p className="font-bold">{authError}</p>}
-              {Object.entries(formErrors).map(
-                ([field, error], index) => error && <p key={index}>• {error}</p>
+          {renderErrors()}
+
+          <form onSubmit={handleSignup} className="flex flex-col gap-3 mt-6">
+            <div className="space-y-1">
+              <input
+                className={`p-2.5 w-full rounded-md border ${
+                  formErrors.email ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[#8DD3BB]`}
+                type="email"
+                name="email"
+                placeholder="Your email"
+                value={formData.email}
+                onChange={handleChange}
+                aria-label="Email"
+              />
+              {formErrors.email && (
+                <p className="text-red-500 text-xs">{formErrors.email}</p>
               )}
             </div>
-          )}
 
-          <form onSubmit={handleSignup} className="flex flex-col gap-4">
-            <input
-              className={`p-2 mt-6 rounded border ${
-                formErrors.email ? "border-red-500" : ""
-              }`}
-              type="email"
-              name="email"
-              placeholder="Your email"
-              value={formData.email}
-              onChange={handleChange}
-            />
+            <div className="space-y-1">
+              <input
+                className={`p-2.5 w-full rounded-md border ${
+                  formErrors.prenom ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[#8DD3BB]`}
+                type="text"
+                name="prenom"
+                placeholder="Your first name"
+                value={formData.prenom}
+                onChange={handleChange}
+                aria-label="First name"
+              />
+              {formErrors.prenom && (
+                <p className="text-red-500 text-xs">{formErrors.prenom}</p>
+              )}
+            </div>
 
-            <input
-              className={`p-2 rounded border ${
-                formErrors.nom ? "border-red-500" : ""
-              }`}
-              type="text"
-              name="nom"
-              placeholder="Your last name"
-              value={formData.nom}
-              onChange={handleChange}
-            />
+            <div className="space-y-1">
+              <input
+                className={`p-2.5 w-full rounded-md border ${
+                  formErrors.nom ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[#8DD3BB]`}
+                type="text"
+                name="nom"
+                placeholder="Your last name"
+                value={formData.nom}
+                onChange={handleChange}
+                aria-label="Last name"
+              />
+              {formErrors.nom && (
+                <p className="text-red-500 text-xs">{formErrors.nom}</p>
+              )}
+            </div>
 
-            <input
-              className={`p-2 rounded border ${
-                formErrors.prenom ? "border-red-500" : ""
-              }`}
-              type="text"
-              name="prenom"
-              placeholder="Your first name"
-              value={formData.prenom}
-              onChange={handleChange}
-            />
+            <div className="space-y-1">
+              <input
+                className={`p-2.5 w-full rounded-md border ${
+                  formErrors.password ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[#8DD3BB]`}
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                aria-label="Password"
+              />
+              {formErrors.password && (
+                <p className="text-red-500 text-xs">{formErrors.password}</p>
+              )}
+            </div>
 
-            <input
-              className={`p-2 rounded border w-full ${
-                formErrors.password ? "border-red-500" : ""
-              }`}
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-
-            <input
-              className={`p-2 rounded border w-full ${
-                formErrors.passwordConfirm ? "border-red-500" : ""
-              }`}
-              type="password"
-              name="passwordConfirm"
-              placeholder="Confirm password"
-              value={formData.passwordConfirm}
-              onChange={handleChange}
-            />
+            <div className="space-y-1">
+              <input
+                className={`p-2.5 w-full rounded-md border ${
+                  formErrors.passwordConfirm ? "border-red-500" : "border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-[#8DD3BB]`}
+                type="password"
+                name="passwordConfirm"
+                placeholder="Confirm password"
+                value={formData.passwordConfirm}
+                onChange={handleChange}
+                aria-label="Confirm password"
+              />
+              {formErrors.passwordConfirm && (
+                <p className="text-red-500 text-xs">{formErrors.passwordConfirm}</p>
+              )}
+            </div>
 
             <button
-              className="bg-[#8DD3BB] text-black py-2 rounded hover:scale-105 duration-300 hover:bg-[#14183E] hover:text-[#FFF1DA] font-medium"
+              className="bg-[#8DD3BB] text-black py-3 rounded-md hover:bg-[#14183E] hover:text-white transition-all duration-300 font-medium mt-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8DD3BB]"
               type="submit"
               disabled={isLoading}
             >
-              {isLoading ? "Signing up..." : "Sign Up"}
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Signing up...
+                </span>
+              ) : (
+                "Sign Up"
+              )}
             </button>
           </form>
 
-          <div className="mt-4 text-sm flex items-center">
-            <p>Already have an account?</p>
+          <div className="mt-4 text-sm flex items-center justify-center md:justify-start">
+            <p className="text-gray-600">Already have an account?</p>
             <button
-              className="register py-2 px-0.5 font-semibold text-[#8DD3BB] font-bold"
+              className="ml-1 font-semibold text-[#8DD3BB] hover:underline focus:outline-none"
               onClick={() => navigate("/login")}
+              type="button"
             >
               Login
             </button>
           </div>
         </div>
 
-        <div className="md:block hidden w-1/2">
+        {/* Image Column */}
+        <div className="hidden md:block md:w-1/2 relative">
           <img
-            className="rounded-2xl max-h-[1200px] w-[900rem] max-w-full"
-            src="https://images.unsplash.com/photo-1550697318-929498858774?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt="Signup form"
+            className="absolute inset-0 h-full w-full object-cover"
+            src="https://images.unsplash.com/photo-1550697318-929498858774?fm=jpg&q=60&w=2000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Morocco landscape"
           />
         </div>
       </div>
