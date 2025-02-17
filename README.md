@@ -126,27 +126,17 @@ An AI-powered web application for generating personalized tourist itineraries in
    - Chat with AI assistant
    - Get real-time updates and recommendations
 
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/improvement`)
-3. Make your changes
-4. Commit your changes (`git commit -am 'Add new feature'`)
-5. Push to the branch (`git push origin feature/improvement`)
-6. Create a Pull Request
-
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 👥 Team
 
-- [Developer Name] - Frontend Development
-- [Developer Name] - Backend Development
-- [Developer Name] - AI Integration
-- [Developer Name] - UI/UX Design
+- **Ouaail El Aouad** - Team Lead & Frontend Lead
+- **Imad Echriki** - Frontend Development
+- **El Mehdi El Adnani** - Backend Development
+- **Moad Dahbi** - DevOps Engineer
+- **Souhail Chaiybrass** - AI Integration
 
 ## 📬 Contact
 
@@ -158,4 +148,4 @@ For any queries or support, please reach out to:
 
 - OpenAI for AI capabilities
 - Moroccan Tourism Office for destination data
-- [Other acknowledgments]
+- All the members of our development team for their dedication and hard work
