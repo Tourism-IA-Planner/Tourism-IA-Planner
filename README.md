@@ -1,7 +1,6 @@
 # Tourism-IA-Planner 🌍
 
-[Live Demo](https://www.touristai.online/) | [API Documentation](https://www.touristai.online/docs)
-
+[Live Demo](https://www.touristai.online/) 
 An AI-powered web application for generating personalized tourist itineraries in Morocco. This platform leverages artificial intelligence to create optimized travel plans based on user preferences, budget constraints, and interests.
 
 ![Tourism-IA-Planner Banner](https://images.unsplash.com/photo-1539020140153-e479b8c22e70)
